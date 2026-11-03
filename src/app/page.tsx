@@ -4,6 +4,7 @@ import Link from "next/link";
 import { NewsletterForm } from "@/components/newsletter-form";
 import { ProductCard } from "@/components/product-card";
 import { ProductRail } from "@/components/product-rail";
+import { SectionHeading } from "@/components/section-heading";
 import {
   accessories,
   atelier,
@@ -29,32 +30,6 @@ export default function Home() {
       <Services />
       <Newsletter />
     </main>
-  );
-}
-
-function SectionHeading({
-  eyebrow,
-  title,
-  href,
-  cta,
-}: {
-  eyebrow: string;
-  title: string;
-  href?: string;
-  cta?: string;
-}) {
-  return (
-    <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between lg:mb-14">
-      <div className="flex flex-col gap-3">
-        <p className="eyebrow text-muted">{eyebrow}</p>
-        <h2 className="text-heading">{title}</h2>
-      </div>
-      {href && cta && (
-        <Link href={href} className="eyebrow link-reveal self-start sm:self-auto">
-          {cta}
-        </Link>
-      )}
-    </div>
   );
 }
 
@@ -101,7 +76,7 @@ function Hero() {
 function Intro() {
   return (
     <section className="section container-reading text-center">
-      <p className="text-title text-muted">
+      <p className="font-display text-heading text-muted italic">
         A wardrobe built on restraint: considered silhouettes, exceptional
         materials and the patience of the hand. This season, we return to
         the essentials and make them last.

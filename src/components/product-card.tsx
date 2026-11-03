@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { formatPrice, type Product } from "@/lib/catalog";
+import { formatPrice, getProductStock, type Product } from "@/lib/catalog";
 
 type ProductCardProps = {
   product: Product;
@@ -9,13 +9,15 @@ type ProductCardProps = {
 };
 
 export function ProductCard({ product, sizes }: ProductCardProps) {
+  const badge = getProductStock(product) === 0 ? "Sold out" : product.badge;
+
   return (
     <Link href={`/products/${product.slug}`} className="group block">
       <div className="media media-zoom">
         <Image src={product.image} alt={product.imageAlt} fill sizes={sizes} />
-        {product.badge && (
+        {badge && (
           <span className="absolute top-3 left-3 text-micro uppercase">
-            {product.badge}
+            {badge}
           </span>
         )}
       </div>

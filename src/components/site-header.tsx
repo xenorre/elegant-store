@@ -21,7 +21,7 @@ export function SiteHeader() {
 
         <Link
           href="/"
-          className="text-title font-medium tracking-wide uppercase lg:text-heading"
+          className="font-display text-title font-semibold tracking-wide uppercase lg:text-heading"
         >
           Elegant
         </Link>

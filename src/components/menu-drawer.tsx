@@ -56,7 +56,7 @@ export function MenuDrawer({ links }: MenuDrawerProps) {
                   <Link
                     href={link.href}
                     onClick={close}
-                    className="link-reveal text-heading"
+                    className="link-reveal font-display text-heading font-medium"
                   >
                     {link.name}
                   </Link>

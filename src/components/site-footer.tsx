@@ -34,7 +34,7 @@ export function SiteFooter() {
     <footer className="border-t border-line">
       <div className="container-wide grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col gap-4">
-          <Link href="/" className="text-title font-medium tracking-wide uppercase">
+          <Link href="/" className="font-display text-title font-semibold tracking-wide uppercase">
             Elegant Store
           </Link>
           <p className="max-w-xs text-body-sm text-muted">

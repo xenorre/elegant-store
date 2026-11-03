@@ -4,7 +4,8 @@
  * Elegant Store design system
  * ---------------------------------------------------------------------------
  * Principles: a monochrome canvas that lets product imagery carry the colour,
- * a single neutral sans-serif, small tracked uppercase for UI chrome, hairline
+ * a high-contrast display serif for headlines and the wordmark, a neutral
+ * sans-serif for everything else, small tracked uppercase for UI chrome, hairline
  * borders instead of shadows, square corners, and generous negative space.
  *
  * Layers:
@@ -74,7 +75,7 @@
 
   /* Fonts come from next/font in layout.tsx. */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-cormorant), "Cormorant Garamond", ui-serif, Georgia, serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
   /* Layout tokens: h-header, pt-header, px-gutter, py-section, ... */
@@ -171,7 +172,7 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 400;
+    font-weight: 500;
     text-wrap: balance;
   }
 
@@ -302,6 +303,7 @@
 
 /* Small uppercase label for eyebrows, nav items, tags, and table headers. */
 @utility eyebrow {
+  font-family: var(--font-sans);
   font-size: var(--text-label);
   line-height: var(--text-label--line-height);
   letter-spacing: var(--tracking-label);
@@ -311,9 +313,16 @@
 
 /* Product name and price in grid tiles. */
 @utility product-caption {
+  font-family: var(--font-sans);
   font-size: var(--text-body-sm);
   line-height: var(--text-body-sm--line-height);
   letter-spacing: var(--text-body-sm--letter-spacing);
+
+  /* Product names are headings for structure, but stay in the UI sans. */
+  & :where(h1, h2, h3, h4) {
+    font-family: inherit;
+    font-weight: inherit;
+  }
 }
 
 /* Media ------------------------------------------------------------------ */
