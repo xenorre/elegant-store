@@ -6,15 +6,16 @@ import { ProductCard } from "@/components/product-card";
 import { ProductRail } from "@/components/product-rail";
 import { SectionHeading } from "@/components/section-heading";
 import {
-  accessories,
+  accessorySlugs,
   atelier,
   collections,
   departments,
   editorial,
   hero,
-  newArrivals,
+  newArrivalSlugs,
   services,
 } from "@/lib/catalog";
+import { getProductsBySlugs } from "@/lib/products";
 
 export default function Home() {
   return (
@@ -120,7 +121,9 @@ function FeaturedCollections() {
   );
 }
 
-function NewArrivals() {
+async function NewArrivals() {
+  const newArrivals = await getProductsBySlugs(newArrivalSlugs);
+
   return (
     <section className="container-wide pb-section">
       <SectionHeading
@@ -167,7 +170,9 @@ function EditorialFeature() {
   );
 }
 
-function Accessories() {
+async function Accessories() {
+  const accessories = await getProductsBySlugs(accessorySlugs);
+
   return (
     <section className="section">
       <div className="container-wide">

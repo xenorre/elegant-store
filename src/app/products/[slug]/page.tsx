@@ -9,26 +9,19 @@ import { ProductGallery } from "@/components/product-gallery";
 import { ProductPurchase } from "@/components/product-purchase";
 import { ProductRail } from "@/components/product-rail";
 import { SectionHeading } from "@/components/section-heading";
-import {
-  categories,
-  formatPrice,
-  getProduct,
-  getProductStock,
-  getRelatedProducts,
-  products,
-  services,
-  type Product,
-} from "@/lib/catalog";
+import { formatPrice, getProductStock, services, type Product } from "@/lib/catalog";
+import { getProduct, getProductSlugs, getRelatedProducts } from "@/lib/products";
 
-export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
+export async function generateStaticParams() {
+  const slugs = await getProductSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps<"/products/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const product = await getProduct(slug);
   if (!product) return {};
 
   return {
@@ -57,11 +50,12 @@ async function ProductDetail({
   params: PageProps<"/products/[slug]">["params"];
 }) {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const product = await getProduct(slug);
   if (!product) notFound();
 
-  const category = categories[product.category];
-  const categoryHref = `/collections/${product.category}`;
+  const category = product.category.name;
+  const categoryHref = `/collections/${product.category.slug}`;
+  const relatedProducts = await getRelatedProducts(product);
   const stock = getProductStock(product);
   const images = [{ src: product.image, alt: product.imageAlt }, ...product.gallery];
 
@@ -139,7 +133,7 @@ async function ProductDetail({
           />
         </div>
         <ProductRail label="Related products">
-          {getRelatedProducts(product).map((related) => (
+          {relatedProducts.map((related) => (
             <li key={related.slug} className="w-[72%] sm:w-[44%] md:w-[31%] xl:w-[23%]">
               <ProductCard
                 product={related}
@@ -212,7 +206,7 @@ function ProductJsonLd({ product, stock }: { product: Product; stock: number }) 
     name: product.name,
     description: product.description,
     image: [product.image, ...product.gallery.map((image) => image.src)],
-    category: categories[product.category],
+    category: product.category.name,
     offers: {
       "@type": "Offer",
       price: product.price,
