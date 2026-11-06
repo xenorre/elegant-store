@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, eq, inArray, ne, notInArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, ne, notInArray } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 
 import { db } from "@/db";
@@ -73,6 +73,20 @@ export async function getProductsBySlugs(slugs: string[]): Promise<Product[]> {
   });
   const bySlug = new Map(rows.map((row) => [row.slug, toProduct(row)]));
   return slugs.flatMap((slug) => bySlug.get(slug) ?? []);
+}
+
+/** Most recently added products first; name breaks ties within a batch. */
+export async function getNewArrivals(limit = 24): Promise<Product[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("products");
+
+  const rows = await db.query.products.findMany({
+    with: withRelations,
+    orderBy: [desc(products.createdAt), asc(products.name)],
+    limit,
+  });
+  return rows.map(toProduct);
 }
 
 export async function getProductSlugs(): Promise<string[]> {
