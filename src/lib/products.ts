@@ -5,7 +5,7 @@ import { cacheLife, cacheTag } from "next/cache";
 
 import { db } from "@/db";
 import { categories, products, stock } from "@/db/schema";
-import type { Product } from "@/lib/catalog";
+import type { Category, Product } from "@/lib/catalog";
 
 // Catalogue reads. Results are cached for a few minutes and tagged "products",
 // so a future admin or order flow can refresh them with updateTag("products").
@@ -87,6 +87,42 @@ export async function getNewArrivals(limit = 24): Promise<Product[]> {
     limit,
   });
   return rows.map(toProduct);
+}
+
+/** A category and its products, alphabetically. Undefined for unknown slugs. */
+export async function getCategoryWithProducts(
+  slug: string,
+): Promise<{ category: Category; products: Product[] } | undefined> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("products");
+
+  const category = await db.query.categories.findFirst({
+    where: eq(categories.slug, slug),
+  });
+  if (!category) return undefined;
+
+  const rows = await db.query.products.findMany({
+    where: eq(products.categoryId, category.id),
+    with: withRelations,
+    orderBy: [asc(products.name)],
+  });
+  return {
+    category: { slug: category.slug, name: category.name },
+    products: rows.map(toProduct),
+  };
+}
+
+export async function getCategorySlugs(): Promise<string[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("products");
+
+  const rows = await db
+    .select({ slug: categories.slug })
+    .from(categories)
+    .orderBy(asc(categories.position));
+  return rows.map((row) => row.slug);
 }
 
 export async function getProductSlugs(): Promise<string[]> {
