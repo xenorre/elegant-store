@@ -1,6 +1,7 @@
 import "server-only";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
+import { cacheLife, cacheTag } from "next/cache";
 
 import { db } from "@/db";
 import { cartItems, orderItems, orders, type OrderStatus } from "@/db/schema";
@@ -160,6 +161,25 @@ export async function markOrderPaid(input: {
     );
   }
   return order;
+}
+
+/** Cache tag for a user's order history; the webhook expires it when an order is paid. */
+export function ordersTag(userId: string) {
+  return `orders-${userId}`;
+}
+
+/** A signed-in customer's paid orders, newest first. */
+export async function getUserOrders(userId: string) {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(ordersTag(userId));
+
+  return db.query.orders.findMany({
+    where: and(eq(orders.userId, userId), eq(orders.status, "paid")),
+    with: { items: true },
+    orderBy: [desc(orders.paidAt)],
+    limit: 20,
+  });
 }
 
 export async function getOrderBySession(sessionId: string) {

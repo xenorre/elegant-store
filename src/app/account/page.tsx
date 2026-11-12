@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { ChangePasswordForm } from "@/components/auth/change-password-form";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { OrderHistory } from "@/components/order-history";
 import { requireUser } from "@/lib/session";
 
 export const metadata: Metadata = {
@@ -44,6 +45,13 @@ async function AccountDetails() {
             {user.emailVerified && <span className="eyebrow text-success">Verified</span>}
           </dd>
         </dl>
+      </section>
+
+      <section aria-labelledby="orders-heading" className="flex flex-col gap-6">
+        <h2 id="orders-heading" className="eyebrow">
+          Orders
+        </h2>
+        <OrderHistory userId={user.id} />
       </section>
 
       <section aria-labelledby="password-heading" className="flex flex-col gap-6">

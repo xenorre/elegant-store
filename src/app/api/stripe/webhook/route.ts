@@ -6,7 +6,7 @@ import { cartTag } from "@/lib/cart";
 import { formatPrice } from "@/lib/catalog";
 import { fulfillCheckout } from "@/lib/checkout";
 import { orderConfirmationEmail, sendEmail } from "@/lib/email";
-import { getOrderBySession, orderReference, releaseOrder } from "@/lib/orders";
+import { getOrderBySession, orderReference, ordersTag, releaseOrder } from "@/lib/orders";
 import { stripe } from "@/lib/stripe";
 
 // Fulfillment runs here, not on the return page: shoppers aren't guaranteed to
@@ -37,6 +37,7 @@ export async function POST(request: Request) {
       const order = await fulfillCheckout(event.data.object.id);
       if (order) {
         if (order.cartId) revalidateTag(cartTag(order.cartId), { expire: 0 });
+        if (order.userId) revalidateTag(ordersTag(order.userId), { expire: 0 });
         after(() => sendConfirmation(event.data.object.id));
       }
       break;
