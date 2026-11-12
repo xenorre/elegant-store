@@ -1,10 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { formatPrice } from "@/lib/catalog";
+import { dateFormat, formatCents } from "@/lib/format";
 import { getUserOrders, orderReference } from "@/lib/orders";
-
-const dateFormat = new Intl.DateTimeFormat("en-IE", { dateStyle: "long" });
 
 /** Paid orders placed while signed in to this account. */
 export async function OrderHistory({ userId }: { userId: string }) {
@@ -36,7 +34,7 @@ export async function OrderHistory({ userId }: { userId: string }) {
                   {" · "}
                 </>
               )}
-              {formatPrice((order.totalCents ?? order.subtotalCents) / 100)}
+              {formatCents(order.totalCents ?? order.subtotalCents, order.currency)}
             </p>
           </div>
           <ul className="flex flex-col gap-4">
