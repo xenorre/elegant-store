@@ -39,7 +39,8 @@ Environment variables live in `.env.local` (copy from `.env.example`): `DATABASE
   - `auth-config.ts`: the options shared by the runtime and the CLI. Put anything that affects the schema here, including plugins, and keep `nextCookies()` last.
   - `auth.ts`: the server instance (Drizzle adapter, email callbacks).
   - `auth.cli.ts`: used only by `pnpm auth:generate`, because the CLI cannot load `server-only`.
-  - `auth-client.ts`: the React client.
+  - `auth-client.ts`: the React client. It has no `baseURL`, so it calls `/api/auth` on the page's own origin.
+  - **Base URL**: in development, `auth.ts` uses a dynamic `baseURL` that accepts `localhost:*` and this machine's LAN IPs (`src/lib/lan-addresses.ts`, shared with `allowedDevOrigins`), so auth works from other devices. In production it uses `BETTER_AUTH_URL`.
   - The catch-all route `src/app/api/auth/[...all]/route.ts` mounts the handler.
 - **Sessions in pages**: `src/lib/session.ts` has `getCurrentUser()` (memoized per request) and `requireUser(path)`, which redirects to `/sign-in?redirectTo=`. These read the request, so render callers inside `<Suspense>`. `src/proxy.ts` is only an optimistic cookie check for `/account/*`; pages must still call `requireUser`. Validate any `redirectTo` with `safeRedirect()` from `src/lib/auth-redirect.ts`.
 - **Auth UI**: pages live in `src/app/(auth)/` (sign-in, sign-up, forgot-password, reset-password) and `src/app/account/`. Client forms are in `src/components/auth/`, and error copy is in `src/lib/auth-errors.ts`.

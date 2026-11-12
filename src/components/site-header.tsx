@@ -10,10 +10,7 @@ export function SiteHeader() {
       <div className="container-wide grid h-full grid-cols-[1fr_auto_1fr] items-center">
         <div className="flex items-center">
           <MenuDrawer links={navigation} />
-          <Link
-            href="/search"
-            className="btn btn-ghost btn-icon max-md:hidden"
-          >
+          <Link href="/search" className="btn btn-ghost btn-icon">
             <SearchIcon />
             <span className="sr-only">Search</span>
           </Link>
@@ -27,11 +24,7 @@ export function SiteHeader() {
         </Link>
 
         <div className="-mr-3 flex items-center justify-end">
-          <Link href="/search" className="btn btn-ghost btn-icon md:hidden">
-            <SearchIcon />
-            <span className="sr-only">Search</span>
-          </Link>
-          <Link href="/account" className="btn btn-ghost btn-icon max-sm:hidden">
+          <Link href="/account" className="btn btn-ghost btn-icon">
             <UserIcon />
             <span className="sr-only">Account</span>
           </Link>

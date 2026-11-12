@@ -8,9 +8,20 @@ import { db } from "@/db";
 import * as schema from "@/db/schema";
 import { authConfig } from "@/lib/auth-config";
 import { resetPasswordEmail, sendEmail, verificationEmail } from "@/lib/email";
+import { lanAddresses } from "@/lib/lan-addresses";
 
 export const auth = betterAuth({
   ...authConfig,
+  // In development, accept localhost and this machine's LAN addresses so the
+  // app works from other devices; links in emails use whichever host was used.
+  // Allowed hosts are also trusted origins. Production uses BETTER_AUTH_URL.
+  baseURL:
+    process.env.NODE_ENV === "development"
+      ? {
+          allowedHosts: ["localhost:*", ...lanAddresses.map((ip) => `${ip}:*`)],
+          protocol: "http",
+        }
+      : undefined,
   database: drizzleAdapter(db, { provider: "pg", schema }),
   emailAndPassword: {
     ...authConfig.emailAndPassword,
