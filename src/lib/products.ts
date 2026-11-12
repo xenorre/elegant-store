@@ -5,7 +5,7 @@ import { cacheLife, cacheTag } from "next/cache";
 
 import { db } from "@/db";
 import { categories, products, stock } from "@/db/schema";
-import type { Category, Product } from "@/lib/catalog";
+import type { Category, Department, Product } from "@/lib/catalog";
 
 // Catalogue reads. Results are cached for a few minutes and tagged "products",
 // so a future admin or order flow can refresh them with updateTag("products").
@@ -26,6 +26,7 @@ function toProduct(row: ProductRow): Product {
     name: row.name,
     detail: row.detail,
     price: row.priceCents / 100,
+    department: row.department,
     category: { slug: row.category.slug, name: row.category.name },
     description: row.description,
     details: row.details,
@@ -111,6 +112,28 @@ export async function getCategoryWithProducts(
     category: { slug: category.slug, name: category.name },
     products: rows.map(toProduct),
   };
+}
+
+/**
+ * A department's products plus unisex pieces, grouped by category in
+ * catalogue order, then alphabetically.
+ */
+export async function getDepartmentProducts(
+  department: Exclude<Department, "unisex">,
+): Promise<Product[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("products");
+
+  const rows = await db.query.products.findMany({
+    where: inArray(products.department, [department, "unisex"]),
+    with: withRelations,
+    orderBy: [asc(products.name)],
+  });
+  // Stable sort keeps the alphabetical order within each category.
+  return rows
+    .sort((a, b) => a.category.position - b.category.position)
+    .map(toProduct);
 }
 
 export async function getCategorySlugs(): Promise<string[]> {

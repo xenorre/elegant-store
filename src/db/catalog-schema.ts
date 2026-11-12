@@ -11,7 +11,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-import type { ProductImage } from "../lib/catalog";
+import type { Department, ProductImage } from "../lib/catalog";
 
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -42,6 +42,7 @@ export const products = pgTable(
     description: text("description").notNull(),
     details: text("details").array().notNull().default(sql`'{}'::text[]`),
     priceCents: integer("price_cents").notNull(),
+    department: text("department").$type<Department>().notNull().default("unisex"),
     image: text("image").notNull(),
     imageAlt: text("image_alt").notNull(),
     /** Additional images shown after the primary one, in order. */
@@ -51,7 +52,12 @@ export const products = pgTable(
   },
   (table) => [
     index("products_category_id_idx").on(table.categoryId),
+    index("products_department_idx").on(table.department),
     check("products_price_cents_check", sql`${table.priceCents} >= 0`),
+    check(
+      "products_department_check",
+      sql`${table.department} in ('women', 'men', 'unisex')`,
+    ),
   ],
 );
 

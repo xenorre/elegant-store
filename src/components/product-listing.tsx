@@ -50,33 +50,46 @@ export function ProductListing({
       </header>
 
       <section aria-labelledby="listing-count" className="container-wide pb-section">
-        <p
-          id="listing-count"
-          className="mb-6 border-b border-line pb-4 text-micro text-muted uppercase"
-        >
-          {products.length} {products.length === 1 ? "piece" : "pieces"}
-        </p>
-
-        {products.length > 0 ? (
-          <ul className="product-grid">
-            {products.map((product) => (
-              <li key={product.slug}>
-                <ProductCard
-                  product={product}
-                  sizes="(min-width: 80rem) 25vw, (min-width: 48rem) 33vw, 50vw"
-                />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="flex flex-col items-center gap-6 py-16 text-center">
-            <p className="text-body-lg text-muted">{emptyMessage}</p>
-            <Link href="/" className="btn btn-secondary">
-              Back to the house
-            </Link>
-          </div>
-        )}
+        <ProductGrid products={products} emptyMessage={emptyMessage} />
       </section>
+    </>
+  );
+}
+
+// Piece count, then the product grid or an empty state. Shared by the listing
+// pages and the department landing pages.
+export function ProductGrid({
+  products,
+  emptyMessage,
+}: Pick<ProductListingProps, "products" | "emptyMessage">) {
+  return (
+    <>
+      <p
+        id="listing-count"
+        className="mb-6 border-b border-line pb-4 text-micro text-muted uppercase"
+      >
+        {products.length} {products.length === 1 ? "piece" : "pieces"}
+      </p>
+
+      {products.length > 0 ? (
+        <ul className="product-grid">
+          {products.map((product) => (
+            <li key={product.slug}>
+              <ProductCard
+                product={product}
+                sizes="(min-width: 80rem) 25vw, (min-width: 48rem) 33vw, 50vw"
+              />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="flex flex-col items-center gap-6 py-16 text-center">
+          <p className="text-body-lg text-muted">{emptyMessage}</p>
+          <Link href="/" className="btn btn-secondary">
+            Back to the house
+          </Link>
+        </div>
+      )}
     </>
   );
 }

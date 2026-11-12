@@ -17,6 +17,7 @@ export const seedProducts: SeedProduct[] = [
     detail: "Black nappa leather",
     price: 2450,
     category: "ready-to-wear",
+    department: "women",
     image: unsplash("1551028719-00167b16eac5"),
     imageAlt: "Black leather biker jacket laid flat on white linen",
     gallery: [
@@ -50,6 +51,7 @@ export const seedProducts: SeedProduct[] = [
     detail: "Rust silk twill",
     price: 1890,
     category: "ready-to-wear",
+    department: "women",
     image: unsplash("1591047139829-d91aecb6caea"),
     imageAlt: "Rust bomber jacket held up on a hanger",
     gallery: [
@@ -87,6 +89,7 @@ export const seedProducts: SeedProduct[] = [
     detail: "Ivory cotton crochet",
     price: 980,
     category: "ready-to-wear",
+    department: "women",
     image: unsplash("1434389677669-e08b4cac3105"),
     imageAlt: "Ivory crochet poncho with fringe on a wooden hanger",
     gallery: [
@@ -116,6 +119,7 @@ export const seedProducts: SeedProduct[] = [
     detail: "Blush satin",
     price: 1150,
     category: "ready-to-wear",
+    department: "women",
     image: unsplash("1594633312681-425c7b97ccd1"),
     imageAlt: "Model wearing blush satin cargo trousers and strappy sandals",
     gallery: [
@@ -151,6 +155,7 @@ export const seedProducts: SeedProduct[] = [
     detail: "Coral calfskin",
     price: 3200,
     category: "leather-goods",
+    department: "women",
     image: unsplash("1584917865442-de89df76afd3"),
     imageAlt: "Coral leather top-handle bag on a display stand",
     gallery: [
@@ -181,6 +186,7 @@ export const seedProducts: SeedProduct[] = [
     detail: "18k gold, blue topaz",
     price: 1480,
     category: "jewellery",
+    department: "women",
     image: unsplash("1599643478518-a784e5dc4c8f"),
     imageAlt: "Layered gold necklaces with a crescent and a blue stone pendant",
     gallery: [
@@ -210,6 +216,7 @@ export const seedProducts: SeedProduct[] = [
     detail: "Sage suede",
     price: 890,
     category: "footwear",
+    department: "women",
     image: unsplash("1560343090-f0409e92791a"),
     imageAlt: "Sage green suede wingtip brogue on a pastel plinth",
     gallery: [
@@ -246,6 +253,7 @@ export const seedProducts: SeedProduct[] = [
     detail: "Gold vermeil",
     price: 620,
     category: "jewellery",
+    department: "women",
     image: unsplash("1617038220319-276d3cfab638"),
     imageAlt: "Pair of chunky gold knot hoop earrings on a pale stone",
     gallery: [
@@ -274,6 +282,7 @@ export const seedProducts: SeedProduct[] = [
     detail: "Gold metal, green lenses",
     price: 450,
     category: "accessories",
+    department: "unisex",
     image: unsplash("1511499767150-a48a237f0083"),
     imageAlt: "Round gold-rimmed sunglasses on a white surface",
     gallery: [
@@ -304,6 +313,7 @@ export const seedProducts: SeedProduct[] = [
     detail: "Rose gold, white sapphires",
     price: 2100,
     category: "jewellery",
+    department: "women",
     image: unsplash("1611591437281-460bfbe1220a"),
     imageAlt: "Rose gold bracelet set with stones on a blush background",
     gallery: [
@@ -333,6 +343,7 @@ export const seedProducts: SeedProduct[] = [
     detail: "Chestnut polished calf",
     price: 760,
     category: "footwear",
+    department: "men",
     image: unsplash("1614252235316-8c857d38b5f4"),
     imageAlt: "Pair of polished chestnut leather derby shoes",
     gallery: [

@@ -14,6 +14,9 @@ export type Category = {
   name: string;
 };
 
+/** Unisex pieces appear in both the women's and men's departments. */
+export type Department = "women" | "men" | "unisex";
+
 export type ProductImage = {
   src: string;
   alt: string;
@@ -29,6 +32,7 @@ export type ProductInfo = {
   name: string;
   detail: string;
   price: number;
+  department: Department;
   description: string;
   details: string[];
   /** Primary image, used on cards and as the first gallery image. */
@@ -170,18 +174,32 @@ export const atelier = {
 
 export const departments = [
   {
+    slug: "women",
     name: "Women",
     href: "/women",
+    intro: "Tailoring, leather and fine jewellery for the season ahead.",
     image: unsplash("1485968579580-b6d095142e6e", 1400),
+    heroImage: unsplash("1485968579580-b6d095142e6e", 2400),
     imageAlt: "Woman in a tailored check coat carrying a studded handbag",
   },
   {
+    slug: "men",
     name: "Men",
     href: "/men",
+    intro: "Considered tailoring and handmade shoes, built to last.",
     image: unsplash("1617137968427-85924c800a22", 1400),
+    heroImage: unsplash("1617137968427-85924c800a22", 2400),
     imageAlt: "Man in a navy suit and brown shoes outside a glass building",
   },
-];
+] satisfies {
+  slug: Exclude<Department, "unisex">;
+  name: string;
+  href: string;
+  intro: string;
+  image: string;
+  heroImage: string;
+  imageAlt: string;
+}[];
 
 export const services = [
   {

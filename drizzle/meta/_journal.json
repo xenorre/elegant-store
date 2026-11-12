@@ -15,6 +15,13 @@
       "when": 1794351665405,
       "tag": "0001_freezing_puff_adder",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794474451034,
+      "tag": "0002_vengeful_franklin_storm",
+      "breakpoints": true
     }
   ]
 }
