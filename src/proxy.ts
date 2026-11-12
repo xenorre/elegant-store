@@ -6,14 +6,15 @@ import { getRouteSlugs } from "@/lib/route-slugs";
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/account")) {
+  if (pathname.startsWith("/account") || pathname.startsWith("/admin")) {
     return requireSessionCookie(request);
   }
   return notFoundForUnknownSlug(request);
 }
 
 // Optimistic check only: it sees whether a session cookie exists, not whether
-// it's valid. Protected pages still call requireUser() from src/lib/session.ts.
+// it's valid. Protected pages still call requireUser() or requireAdmin() from
+// src/lib/session.ts.
 function requireSessionCookie(request: NextRequest) {
   if (getSessionCookie(request)) {
     return NextResponse.next();
@@ -46,5 +47,5 @@ async function notFoundForUnknownSlug(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/account/:path*", "/collections/:slug", "/products/:slug"],
+  matcher: ["/account/:path*", "/admin/:path*", "/collections/:slug", "/products/:slug"],
 };
