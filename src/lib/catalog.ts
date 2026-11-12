@@ -17,6 +17,9 @@ export type Category = {
 /** Unisex pieces appear in both the women's and men's departments. */
 export type Department = "women" | "men" | "unisex";
 
+/** Only active products are shown in the store or can be bought. */
+export type ProductStatus = "draft" | "active" | "archived";
+
 export type ProductImage = {
   src: string;
   alt: string;

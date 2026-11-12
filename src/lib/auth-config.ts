@@ -16,6 +16,13 @@ export const authConfig = {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
   },
+  user: {
+    additionalFields: {
+      // "admin" grants /admin. input: false keeps sign-up and update-user from
+      // setting it; it's changed only by `pnpm admin:grant`.
+      role: { type: "string", required: false, defaultValue: "user", input: false },
+    },
+  },
   session: {
     cookieCache: { enabled: true, maxAge: 5 * 60 },
   },

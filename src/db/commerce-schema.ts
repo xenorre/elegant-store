@@ -30,8 +30,8 @@ export const carts = pgTable("carts", {
   ...timestamps,
 });
 
-// Items point at a product and size rather than a stock row, because the seed
-// script replaces stock rows. A null size means a one-size product.
+// Items point at a product and size rather than a stock row, because
+// `pnpm db:seed --reset` replaces stock rows. A null size means a one-size product.
 export const cartItems = pgTable(
   "cart_items",
   {
@@ -91,6 +91,11 @@ export const orders = pgTable(
   },
   (table) => [
     index("orders_user_id_idx").on(table.userId),
+    // For the admin order list and search.
+    index("orders_status_created_at_idx").on(table.status, table.createdAt.desc()),
+    index("orders_created_at_idx").on(table.createdAt.desc()),
+    index("orders_stripe_payment_intent_id_idx").on(table.stripePaymentIntentId),
+    index("orders_email_idx").on(table.email),
     check(
       "orders_status_check",
       sql`${table.status} in ('pending', 'paid', 'payment_failed', 'expired')`,

@@ -11,7 +11,8 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-import type { Department, ProductImage } from "../lib/catalog";
+import type { Department, ProductImage, ProductStatus } from "../lib/catalog";
+import { user } from "./auth-schema";
 
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -48,11 +49,14 @@ export const products = pgTable(
     /** Additional images shown after the primary one, in order. */
     gallery: jsonb("gallery").$type<ProductImage[]>().notNull().default([]),
     badge: text("badge"),
+    status: text("status").$type<ProductStatus>().notNull().default("active"),
     ...timestamps,
   },
   (table) => [
     index("products_category_id_idx").on(table.categoryId),
     index("products_department_idx").on(table.department),
+    index("products_status_idx").on(table.status),
+    check("products_status_check", sql`${table.status} in ('draft', 'active', 'archived')`),
     check("products_price_cents_check", sql`${table.priceCents} >= 0`),
     check(
       "products_department_check",
@@ -82,7 +86,26 @@ export const stock = pgTable(
   ],
 );
 
-export const categoriesRelations = relations(categories, ({ many }) => ({
+// An append-only log of admin stock changes. Admins adjust quantities by a
+// delta rather than setting them, so checkout holds are never overwritten.
+export const stockAdjustments = pgTable(
+  "stock_adjustments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    stockId: uuid("stock_id").references(() => stock.id, { onDelete: "set null" }),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    size: text("size"),
+    delta: integer("delta").notNull(),
+    reason: text("reason").notNull(),
+    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamps.createdAt,
+  },
+  (table) => [index("stock_adjustments_product_id_idx").on(table.productId, table.createdAt)],
+);
+
+export const categoriesRelations =relations(categories, ({ many }) => ({
   products: many(products),
 }));
 
