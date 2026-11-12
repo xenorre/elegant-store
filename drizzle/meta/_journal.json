@@ -29,6 +29,13 @@
       "when": 1794509789419,
       "tag": "0003_needy_shiva",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794515086315,
+      "tag": "0004_faulty_patch",
+      "breakpoints": true
     }
   ]
 }

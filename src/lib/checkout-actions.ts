@@ -36,6 +36,12 @@ export async function startCheckout(): Promise<StartCheckoutResult> {
     orderBy: [asc(cartItems.createdAt)],
   });
   if (rows.length === 0) return { ok: false, error: "Your bag is empty." };
+  if (rows.some((row) => row.product.status !== "active")) {
+    return {
+      ok: false,
+      error: "Some pieces in your bag are no longer available. Please review your bag.",
+    };
+  }
 
   const lines: OrderLine[] = rows.map((row) => ({
     productId: row.productId,

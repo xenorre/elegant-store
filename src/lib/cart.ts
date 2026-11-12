@@ -87,7 +87,11 @@ async function getCartContents(cartId: string): Promise<Cart> {
     size: row.size,
     quantity: row.quantity,
     price: row.product.priceCents / 100,
-    available: availability.get(`${row.productId}:${row.size ?? ""}`) ?? 0,
+    // Archived or drafted pieces stay in the bag but show as unavailable.
+    available:
+      row.product.status === "active"
+        ? (availability.get(`${row.productId}:${row.size ?? ""}`) ?? 0)
+        : 0,
   }));
 
   return {
