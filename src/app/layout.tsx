@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Geist, Geist_Mono } from "next/font/google";
 
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
-
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,11 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${cormorant.variable} ${geistMono.variable} h-full`}
     >
-      <body className="flex min-h-full flex-col bg-paper text-ink">
-        <SiteHeader />
-        {children}
-        <SiteFooter />
-      </body>
+      <body className="flex min-h-full flex-col bg-paper text-ink">{children}</body>
     </html>
   );
 }
