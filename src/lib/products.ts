@@ -8,7 +8,10 @@ import { categories, products, stock } from "@/db/schema";
 import type { Category, Department, Product } from "@/lib/catalog";
 
 // Catalogue reads. Results are cached for a few minutes and tagged "products",
-// so a future admin or order flow can refresh them with updateTag("products").
+// so admin and order flows refresh them with updateTag("products"). Only
+// active products are public; drafts and archived pieces are admin-only.
+
+const isActive = eq(products.status, "active");
 
 const withRelations = {
   category: true as const,
@@ -55,7 +58,7 @@ export async function getProduct(slug: string): Promise<Product | undefined> {
   cacheTag("products");
 
   const row = await db.query.products.findFirst({
-    where: eq(products.slug, slug),
+    where: and(isActive, eq(products.slug, slug)),
     with: withRelations,
   });
   return row && toProduct(row);
@@ -69,7 +72,7 @@ export async function getProductsBySlugs(slugs: string[]): Promise<Product[]> {
 
   if (slugs.length === 0) return [];
   const rows = await db.query.products.findMany({
-    where: inArray(products.slug, slugs),
+    where: and(isActive, inArray(products.slug, slugs)),
     with: withRelations,
   });
   const bySlug = new Map(rows.map((row) => [row.slug, toProduct(row)]));
@@ -83,6 +86,7 @@ export async function getNewArrivals(limit = 24): Promise<Product[]> {
   cacheTag("products");
 
   const rows = await db.query.products.findMany({
+    where: isActive,
     with: withRelations,
     orderBy: [desc(products.createdAt), asc(products.name)],
     limit,
@@ -104,7 +108,7 @@ export async function getCategoryWithProducts(
   if (!category) return undefined;
 
   const rows = await db.query.products.findMany({
-    where: eq(products.categoryId, category.id),
+    where: and(isActive, eq(products.categoryId, category.id)),
     with: withRelations,
     orderBy: [asc(products.name)],
   });
@@ -126,7 +130,7 @@ export async function getDepartmentProducts(
   cacheTag("products");
 
   const rows = await db.query.products.findMany({
-    where: inArray(products.department, [department, "unisex"]),
+    where: and(isActive, inArray(products.department, [department, "unisex"])),
     with: withRelations,
     orderBy: [asc(products.name)],
   });
@@ -156,6 +160,7 @@ export async function getProductSlugs(): Promise<string[]> {
   const rows = await db
     .select({ slug: products.slug })
     .from(products)
+    .where(isActive)
     .orderBy(asc(products.slug));
   return rows.map((row) => row.slug);
 }
@@ -180,7 +185,11 @@ async function relatedProducts(
     .where(eq(categories.slug, categorySlug));
 
   const first = await db.query.products.findMany({
-    where: and(ne(products.slug, slug), inArray(products.categoryId, sameCategory)),
+    where: and(
+      isActive,
+      ne(products.slug, slug),
+      inArray(products.categoryId, sameCategory),
+    ),
     with: withRelations,
     orderBy: [asc(products.name)],
     limit,
@@ -189,6 +198,7 @@ async function relatedProducts(
     first.length < limit
       ? await db.query.products.findMany({
           where: and(
+            isActive,
             ne(products.slug, slug),
             notInArray(products.categoryId, sameCategory),
           ),

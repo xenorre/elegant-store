@@ -1,5 +1,7 @@
 import "server-only";
 
+import { eq } from "drizzle-orm";
+
 import { db } from "@/db";
 import { categories, products } from "@/db/schema";
 import { editorialCollections } from "@/lib/editorial-collections";
@@ -8,8 +10,10 @@ import { editorialCollections } from "@/lib/editorial-collections";
 // src/proxy.ts to return a real 404 before the page streams. Pages call
 // notFound() inside Suspense, which can only produce a 200 with noindex.
 //
-// Kept in memory for a minute per server instance: new catalogue rows can 404
-// for up to that long, and updateTag("products") does not reset it.
+// Kept in memory for a minute per server instance: new or newly activated
+// products can 404 for up to that long, and archived ones keep a 200 page
+// (which renders not-found) until it expires. updateTag("products") does not
+// reset it, and the proxy has its own module instance, so Server Actions can't.
 
 const TTL_MS = 60_000;
 
@@ -21,7 +25,7 @@ let pending: Promise<RouteSlugs> | undefined;
 async function load(): Promise<RouteSlugs> {
   const [categoryRows, productRows] = await Promise.all([
     db.select({ slug: categories.slug }).from(categories),
-    db.select({ slug: products.slug }).from(products),
+    db.select({ slug: products.slug }).from(products).where(eq(products.status, "active")),
   ]);
   return {
     collections: new Set([

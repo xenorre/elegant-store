@@ -19,7 +19,9 @@ export async function addToBag(slug: string, size: string | null): Promise<CartA
     where: eq(products.slug, slug),
     with: { stock: true },
   });
-  if (!product) return { ok: false, error: "This piece is no longer available." };
+  if (!product || product.status !== "active") {
+    return { ok: false, error: "This piece is no longer available." };
+  }
 
   const entry = product.stock.find((row) => row.size === size);
   if (!entry) return { ok: false, error: "Please select a size." };
