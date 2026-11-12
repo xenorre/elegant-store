@@ -28,7 +28,15 @@ export async function sendEmail({ to, subject, html, text }: Email) {
   }
 }
 
-function layout(heading: string, body: string, url: string, action: string) {
+const ignoreNote = "If you didn't request this, you can ignore this email.";
+
+function layout(
+  heading: string,
+  body: string,
+  url: string,
+  action: string,
+  note = ignoreNote,
+) {
   return `<!doctype html>
 <html>
   <body style="margin:0;padding:48px 24px;background:#faf8f5;color:#1a1a1a;font-family:Georgia,serif;">
@@ -37,7 +45,7 @@ function layout(heading: string, body: string, url: string, action: string) {
       <h1 style="margin:0 0 16px;font-size:28px;font-weight:normal;">${heading}</h1>
       <p style="margin:0 0 32px;font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;">${body}</p>
       <a href="${url}" style="display:inline-block;padding:14px 28px;background:#1a1a1a;color:#faf8f5;font-family:Helvetica,Arial,sans-serif;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;">${action}</a>
-      <p style="margin:40px 0 0;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#6b6b6b;">If you didn't request this, you can ignore this email.</p>
+      <p style="margin:40px 0 0;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#6b6b6b;">${note}</p>
     </div>
   </body>
 </html>`;
@@ -61,4 +69,28 @@ export function resetPasswordEmail(to: string, url: string): Email {
     html: layout("Reset your password", body, url, "Reset password"),
     text: `${body}\n\n${url}\n\nIf you didn't request this, you can ignore this email.`,
   };
+}
+
+export function orderConfirmationEmail(
+  to: string,
+  order: { reference: string; total: string; items: string[] },
+  url: string,
+): Email {
+  const body = `Thank you for your order ${order.reference}. We'll email you again when it ships.`;
+  const summary = `${order.items.join(", ")}. Total paid: ${order.total}.`;
+  const note = "Questions about your order? Our client services team is here to help.";
+  return {
+    to,
+    subject: `Your Elegant order ${order.reference}`,
+    html: layout("Thank you for your order", `${body}<br><br>${escapeHtml(summary)}`, url, "Continue shopping", note),
+    text: `${body}\n\n${summary}\n\n${url}\n\n${note}`,
+  };
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
