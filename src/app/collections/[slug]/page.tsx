@@ -2,19 +2,36 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { EditorialCollection } from "@/components/editorial-collection";
 import { ProductListing, ProductListingSkeleton } from "@/components/product-listing";
 import { collections } from "@/lib/catalog";
+import { editorialCollections, getEditorialCollection } from "@/lib/editorial-collections";
 import { getCategorySlugs, getCategoryWithProducts } from "@/lib/products";
 
+// Serves two kinds of collection: editorial ones (seasonal campaigns, defined
+// in src/lib/editorial-collections.ts) and product categories from the
+// database. An editorial slug wins if both exist.
 export async function generateStaticParams() {
   const slugs = await getCategorySlugs();
-  return slugs.map((slug) => ({ slug }));
+  return [...editorialCollections.map((collection) => collection.slug), ...slugs].map(
+    (slug) => ({ slug }),
+  );
 }
 
 export async function generateMetadata({
   params,
 }: PageProps<"/collections/[slug]">): Promise<Metadata> {
   const { slug } = await params;
+
+  const editorial = getEditorialCollection(slug);
+  if (editorial) {
+    return {
+      title: editorial.title,
+      description: editorial.description,
+      openGraph: { images: [editorial.heroImages[0].src] },
+    };
+  }
+
   const result = await getCategoryWithProducts(slug);
   if (!result) return {};
 
@@ -25,7 +42,7 @@ export async function generateMetadata({
 }
 
 // `params` is URL data, so everything that reads it sits behind Suspense, as on
-// the product page. Known categories are still pre-rendered as complete HTML.
+// the product page. Known collections are still pre-rendered as complete HTML.
 export default function CollectionPage({ params }: PageProps<"/collections/[slug]">) {
   return (
     <main className="flex-1">
@@ -42,6 +59,10 @@ async function Collection({
   params: PageProps<"/collections/[slug]">["params"];
 }) {
   const { slug } = await params;
+
+  const editorial = getEditorialCollection(slug);
+  if (editorial) return <EditorialCollection collection={editorial} />;
+
   const result = await getCategoryWithProducts(slug);
   if (!result) notFound();
 
