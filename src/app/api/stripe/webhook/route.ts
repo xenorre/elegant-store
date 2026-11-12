@@ -3,10 +3,8 @@ import { after } from "next/server";
 import type Stripe from "stripe";
 
 import { cartTag } from "@/lib/cart";
-import { formatPrice } from "@/lib/catalog";
-import { fulfillCheckout } from "@/lib/checkout";
-import { orderConfirmationEmail, sendEmail } from "@/lib/email";
-import { getOrderBySession, orderReference, ordersTag, releaseOrder } from "@/lib/orders";
+import { fulfillCheckout, sendOrderConfirmation } from "@/lib/checkout";
+import { ordersTag, releaseOrder } from "@/lib/orders";
 import { stripe } from "@/lib/stripe";
 
 // Fulfillment runs here, not on the return page: shoppers aren't guaranteed to
@@ -38,7 +36,7 @@ export async function POST(request: Request) {
       if (order) {
         if (order.cartId) revalidateTag(cartTag(order.cartId), { expire: 0 });
         if (order.userId) revalidateTag(ordersTag(order.userId), { expire: 0 });
-        after(() => sendConfirmation(event.data.object.id));
+        after(() => sendOrderConfirmation(event.data.object.id));
       }
       break;
     }
@@ -53,26 +51,4 @@ export async function POST(request: Request) {
   }
 
   return Response.json({ received: true });
-}
-
-async function sendConfirmation(sessionId: string) {
-  const order = await getOrderBySession(sessionId);
-  if (!order?.email) return;
-
-  const items = order.items.map((item) =>
-    [item.quantity > 1 ? `${item.quantity} × ${item.name}` : item.name, item.size]
-      .filter(Boolean)
-      .join(", size "),
-  );
-  await sendEmail(
-    orderConfirmationEmail(
-      order.email,
-      {
-        reference: orderReference(order.id),
-        total: formatPrice((order.totalCents ?? order.subtotalCents) / 100),
-        items,
-      },
-      process.env.NEXT_PUBLIC_APP_URL ?? "",
-    ),
-  );
 }

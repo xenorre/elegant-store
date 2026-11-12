@@ -1,6 +1,8 @@
 import "server-only";
 
-import { markOrderPaid } from "@/lib/orders";
+import { orderConfirmationEmail, sendEmail } from "@/lib/email";
+import { formatCents } from "@/lib/format";
+import { getOrderBySession, markOrderPaid, orderReference } from "@/lib/orders";
 import { stripe } from "@/lib/stripe";
 
 /**
@@ -37,4 +39,27 @@ export async function fulfillCheckout(sessionId: string) {
         ? session.payment_intent
         : (session.payment_intent?.id ?? null),
   });
+}
+
+/** Emails the order confirmation. Call once, after fulfillCheckout returns an order. */
+export async function sendOrderConfirmation(sessionId: string) {
+  const order = await getOrderBySession(sessionId);
+  if (!order?.email) return;
+
+  const items = order.items.map((item) =>
+    [item.quantity > 1 ? `${item.quantity} × ${item.name}` : item.name, item.size]
+      .filter(Boolean)
+      .join(", size "),
+  );
+  await sendEmail(
+    orderConfirmationEmail(
+      order.email,
+      {
+        reference: orderReference(order.id),
+        total: formatCents(order.totalCents ?? order.subtotalCents, order.currency),
+        items,
+      },
+      process.env.NEXT_PUBLIC_APP_URL ?? "",
+    ),
+  );
 }
