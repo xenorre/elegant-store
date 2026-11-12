@@ -96,7 +96,7 @@ async function ProductDetail({
             <p className="mt-2 text-title">{formatPrice(product.price)}</p>
           </div>
 
-          <ProductPurchase sizes={product.sizes} stock={stock} />
+          <ProductPurchase slug={product.slug} sizes={product.sizes} stock={stock} />
 
           <div className="flex flex-col">
             <ProductSection title="Description" defaultOpen>

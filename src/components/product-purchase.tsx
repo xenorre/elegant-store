@@ -1,39 +1,49 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useState } from "react";
+import { useId, useState, useTransition } from "react";
 
 import { StockStatus } from "@/components/stock-status";
+import { addToBag } from "@/lib/cart-actions";
 import type { SizeOption } from "@/lib/catalog";
 
 type ProductPurchaseProps = {
+  slug: string;
   /** Size options with per-size stock, or undefined for one-size products. */
   sizes?: SizeOption[];
   /** Total stock across all sizes. */
   stock: number;
 };
 
-// Size selection, stock state and add to bag. There is no cart yet, so adding
-// only confirms on screen.
-export function ProductPurchase({ sizes, stock }: ProductPurchaseProps) {
+// Size selection, stock state and add to bag.
+export function ProductPurchase({ slug, sizes, stock }: ProductPurchaseProps) {
   const [selected, setSelected] = useState<string | null>(null);
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
+  const [pending, startTransition] = useTransition();
   const messageId = useId();
 
   const selectedSize = sizes?.find((size) => size.label === selected);
   const quantity = selectedSize ? selectedSize.stock : stock;
   const soldOut = stock === 0;
 
-  const addToBag = () => {
+  const handleAddToBag = () => {
     if (sizes && !selectedSize) {
       setMessage({ text: "Please select a size.", error: true });
       return;
     }
-    setMessage({
-      text: selectedSize
-        ? `Added to your bag in size ${selectedSize.label}.`
-        : "Added to your bag.",
-      error: false,
+    setMessage(null);
+    startTransition(async () => {
+      const result = await addToBag(slug, selectedSize?.label ?? null);
+      setMessage(
+        result.ok
+          ? {
+              text: selectedSize
+                ? `Added to your bag in size ${selectedSize.label}.`
+                : "Added to your bag.",
+              error: false,
+            }
+          : { text: result.error, error: true },
+      );
     });
   };
 
@@ -85,12 +95,12 @@ export function ProductPurchase({ sizes, stock }: ProductPurchaseProps) {
       <div className="flex flex-col gap-3">
         <button
           type="button"
-          onClick={addToBag}
-          disabled={soldOut}
+          onClick={handleAddToBag}
+          disabled={soldOut || pending}
           aria-describedby={message ? messageId : undefined}
           className="btn btn-primary btn-lg btn-block"
         >
-          {soldOut ? "Sold out" : "Add to bag"}
+          {soldOut ? "Sold out" : pending ? "Adding…" : "Add to bag"}
         </button>
         <p
           id={messageId}
@@ -98,6 +108,14 @@ export function ProductPurchase({ sizes, stock }: ProductPurchaseProps) {
           className={`min-h-5 text-body-sm ${message?.error ? "text-danger" : ""}`}
         >
           {message?.text}
+          {message && !message.error && (
+            <>
+              {" "}
+              <Link href="/bag" className="link">
+                View bag
+              </Link>
+            </>
+          )}
         </p>
         {soldOut && (
           <p className="text-body-sm text-muted">
