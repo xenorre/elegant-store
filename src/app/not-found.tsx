@@ -4,7 +4,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
 // The root not-found boundary sits outside the (store) layout, so it renders
-// the storefront chrome itself.
+// the storefront chrome itself. /admin's notFound() lands here too, which keeps
+// the admin area from revealing itself to non-admins.
 export default function NotFound() {
   return (
     <>
